@@ -17,6 +17,7 @@ plugins:
 provider:
   name: aws
   runtime: nodejs14.x
+  profile: acloudguru
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
 
@@ -135,7 +136,7 @@ functions:
         Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
 
   DeletePost:
-    handler: src/lambda/http/deleteTodo.handler
+    handler: src/lambda/http/deletePost.handler
     events:
       - http:
           method: delete
@@ -192,21 +193,21 @@ resources:
           Ref: ApiGatewayRestApi
 
     # TODO: Create a DynamoDB table with local secondary index and a composite key
-    TodosTable:
+    PostTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:provider.environment.POST_TABLE}
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: todoId
+          - AttributeName: postId
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: todoId
+          - AttributeName: postId
             KeyType: RANGE
         LocalSecondaryIndexes:
           - IndexName: ${self:provider.environment.POST_CREATED_AT_INDEX}

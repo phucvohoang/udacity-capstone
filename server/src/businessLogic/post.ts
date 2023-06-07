@@ -4,21 +4,21 @@ import { CreatePostRequest } from '../requests/CreatePostRequest';
 import { PostUpdate } from '../models/PostUpdate';
 
 const postAccess = new PostAccess();
-export async function getAllTodos(userId: string): Promise<PostItem[]> {
+export async function getAllPosts(userId: string): Promise<PostItem[]> {
   return await postAccess.getAllPosts(userId);
 }
 
-export async function createTodo(newTodo: CreatePostRequest, userId: string, postId: string): Promise<CreatePostRequest> {
+export async function createPost(newPost: CreatePostRequest, userId: string, postId: string): Promise<CreatePostRequest> {
   return await postAccess.createPost({
     postId: postId, // generate via uuid
     userId: userId, // generated via uuid
-    title: newTodo.title, // from user's post request
-    imageUrl: newTodo?.imageUrl || '', // from user's post request
+    title: newPost.title, // from user's post request
+    imageUrl: newPost?.imageUrl || '', // from user's post request
     createdAt: new Date().toISOString(),
   });
 }
 
-export async function deleteTodo(postId: string, userId: string): Promise<void> {
+export async function deletePost(postId: string, userId: string): Promise<void> {
   return await postAccess.deletePost(postId, userId);
 }
 
@@ -34,7 +34,7 @@ export async function persistAttachmentUrl(
   return await postAccess.persistAttachmentUrl(postId, userId);
 }
 
-export async function getTodosForUser(userId: string): Promise<PostItem[]> {
+export async function getPostsForUser(userId: string): Promise<PostItem[]> {
   return await postAccess.getPostsForUser(userId);
 }
 

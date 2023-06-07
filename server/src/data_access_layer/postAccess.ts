@@ -19,7 +19,7 @@ export class PostAccess {
   ) {}
 
   async getAllPosts(userId: string): Promise<PostItem[]> {
-    logger.info('Getting all todos');
+    logger.info('Getting all posts');
     const result = await this.docClient
       .query({
         TableName: this.postTable,
@@ -33,20 +33,36 @@ export class PostAccess {
     const items = result.Items;
     return items as PostItem[];
   }
+  async getSpecificPost(userId: string, postId): Promise<PostItem[]> {
+    logger.info('Getting specific post');
+    const result = await this.docClient
+      .query({
+        TableName: this.postTable,
+        IndexName: this.userIdIndex,
+        KeyConditionExpression: 'userId = :userId, postId = :postId',
+        ExpressionAttributeValues: {
+          ':userId': userId,
+          ':postId': postId,
+        },
+      })
+      .promise();
+    const items = result.Items;
+    return items as PostItem[];
+  }
 
-  async createPost(todoItem: PostItem): Promise<PostItem> {
-    logger.info('Creating a new todo');
+  async createPost(postItem: PostItem): Promise<PostItem> {
+    logger.info('Creating a new post');
     await this.docClient
       .put({
         TableName: this.postTable,
-        Item: todoItem,
+        Item: postItem,
       })
       .promise();
-    return todoItem;
+    return postItem;
   }
 
   async updatePost(postId: string, userId: string, postUpdate: PostUpdate): Promise<PostUpdate> {
-    logger.info('Updating a todo');
+    logger.info('Updating a post');
     await this.docClient
       .update({
         TableName: this.postTable,
@@ -61,7 +77,7 @@ export class PostAccess {
           // ':done': postUpdate.done,
         },
         ExpressionAttributeNames: {
-          '#name': 'name',
+          '#title': 'title',
           //   '#dueDate': 'dueDate',
           //   '#done': 'done',
         },
@@ -71,7 +87,7 @@ export class PostAccess {
   }
 
   async deletePost(postId: string, userId: string): Promise<void> {
-    logger.info('Deleting a todo');
+    logger.info('Deleting a post');
     await this.docClient
       .delete({
         TableName: this.postTable,
@@ -84,27 +100,27 @@ export class PostAccess {
   }
 
   async persistAttachmentUrl(
-    todoId: string,
+    postId: string,
     userId: string
     // imageId: string
   ): Promise<void> {
     logger.info('Persisting an attachment url');
     console.log(
-      '🚀 ~ file: todosAccess.ts:88 ~ PostAccess ~ persistAttachmentUrl ~ attachmentURl:',
-      `https://${this.bucketName}.s3.amazonaws.com/${todoId}`,
-      todoId,
+      '🚀 ~ file: postsAccess.ts:88 ~ PostAccess ~ persistAttachmentUrl ~ attachmentURl:',
+      `https://${this.bucketName}.s3.amazonaws.com/${postId}`,
+      postId,
       userId
     );
     await this.docClient
       .update({
         TableName: this.postTable,
         Key: {
-          todoId,
+          postId,
           userId,
         },
         UpdateExpression: 'set attachmentUrl = :a',
         ExpressionAttributeValues: {
-          ':a': `https://${this.bucketName}.s3.amazonaws.com/${todoId}`,
+          ':a': `https://${this.bucketName}.s3.amazonaws.com/${postId}`,
         },
       })
       .promise();
@@ -123,7 +139,7 @@ export class PostAccess {
   }
 
   async getPostsForUser(userId: string): Promise<PostItem[]> {
-    logger.info('Getting all todos for user');
+    logger.info('Getting all posts for user');
     const result = await this.docClient
       .query({
         TableName: this.postTable,

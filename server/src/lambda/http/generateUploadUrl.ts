@@ -8,16 +8,16 @@ import { getUserId } from '../utils';
 import { persistAttachmentUrl, getGeneratedUploadURL } from '../../businessLogic/post';
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const todoId = event.pathParameters.todoId;
-  console.log('🚀 ~ file: generateUploadUrl.ts:16 ~ todoId:', todoId);
+  const postId = event.pathParameters.postId;
+  console.log('🚀 ~ file: generateUploadUrl.ts:16 ~ postId:', postId);
   const userId = getUserId(event);
   console.log('🚀 ~ file: generateUploadUrl.ts:15 ~ handler ~ userId:', userId);
   const imageId = uuidv4();
   console.log('🚀 ~ file: generateUploadUrl.ts:17 ~ handler ~ imageId:', imageId);
 
-  const signedUrl = await getGeneratedUploadURL(todoId);
-  // await persistAttachmentUrl(todoId, userId, `${imageId}`)
-  await persistAttachmentUrl(todoId, userId);
+  const signedUrl = await getGeneratedUploadURL(postId);
+  // await persistAttachmentUrl(postId, userId, `${imageId}`)
+  await persistAttachmentUrl(postId, userId);
 
   return {
     statusCode: 201,
