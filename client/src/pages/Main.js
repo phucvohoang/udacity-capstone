@@ -13,8 +13,10 @@ const Main = (props) => {
   const [state, setState] = useState({
     posts: [],
     idToken: '',
+    isFetching: true,
   });
   const fetchPost = async () => {
+    setState({ ...state, isFetching: true });
     const res = await getIdTokenClaims();
     const idToken = res.__raw;
     const listPost = await getPosts(idToken);
@@ -22,6 +24,7 @@ const Main = (props) => {
     setState({
       posts: listPost.posts,
       idToken,
+      isFetching: false,
     });
     toast.success('Fetch post successfully');
   };
@@ -31,11 +34,18 @@ const Main = (props) => {
 
   const renderPosts = () => {
     const { posts, idToken } = state;
-    if (posts.length <= 0) {
+    if (state.isFetching) {
       return <Spin />;
     }
+    if (posts.length <= 0 && !state.isFetching) {
+      return <p>You have no post, but you can create it :)</p>;
+    }
     return posts.map((p) => {
-      return <Post key={p.postId} post={p} idToken={idToken} />;
+      return (
+        <Col>
+          <Post key={p.postId} post={p} idToken={idToken} />
+        </Col>
+      );
     });
   };
   return (
@@ -51,7 +61,9 @@ const Main = (props) => {
           </Button>
         </Row>
       </Col>
-      <Row justify="center">{renderPosts()}</Row>
+      <Row justify="center" gutter={[16, 16]}>
+        {renderPosts()}
+      </Row>
     </Row>
   );
 };

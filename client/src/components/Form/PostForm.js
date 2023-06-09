@@ -1,32 +1,23 @@
 import React, { useState } from 'react';
-import { Button, Checkbox, Form, Input, Upload } from 'antd';
+import { Button, Form, Input, Upload } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { getUploadUrl, uploadFile } from '../../api/posts-api';
-import { useAuth0 } from '@auth0/auth0-react';
+
 const FormPost = (props) => {
-  const { onSubmit } = props;
-  const { getIdTokenClaims } = useAuth0();
+  const { onSubmit, processing = false, isEdit } = props;
   const [payload, setPayload] = useState({
     title: '',
     file: null,
   });
   const onFinish = (values) => {
-    console.log('Success:', values);
-    const { title, file } = values;
-    onSubmit({ title, image: file });
+    const { title } = values;
+    onSubmit({ title, image: payload.file });
   };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
   const onFileChange = async (e) => {
-    console.log(e.fileList);
-    const res = await getIdTokenClaims();
-    const idToken = res.__raw;
-    const url = await getUploadUrl(idToken, '676e3066-3709-475c-9dc2-bad13513c92d');
-    console.log('🚀 ~ file: Main.js:14 ~ fetchPost ~ listPost:', url);
-    const response = await uploadFile(url, e.fileList[0]);
-    setPayload({ ...payload, file: e.fileList[0] });
-    // setPosts(listPost.posts);
+    const file = e.fileList[0];
+    setPayload({ ...payload, file: file.originFileObj });
   };
   const normFile = (e) => {
     if (Array.isArray(e)) {
@@ -58,7 +49,7 @@ const FormPost = (props) => {
         name="title"
         rules={[
           {
-            required: true,
+            required: isEdit ? false : true,
             message: 'Please input title!',
           },
         ]}
@@ -87,7 +78,7 @@ const FormPost = (props) => {
           span: 16,
         }}
       >
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={processing}>
           Submit
         </Button>
       </Form.Item>
