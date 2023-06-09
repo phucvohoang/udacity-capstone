@@ -118,7 +118,7 @@ export class PostAccess {
           postId,
           userId,
         },
-        UpdateExpression: 'set attachmentUrl = :a',
+        UpdateExpression: 'set imageUrl = :a',
         ExpressionAttributeValues: {
           ':a': `https://${this.bucketName}.s3.amazonaws.com/${postId}`,
         },
